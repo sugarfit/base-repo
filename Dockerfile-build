@@ -1,0 +1,19 @@
+FROM 035243212545.dkr.ecr.ap-south-1.amazonaws.com/builder/java21:latest
+
+ARG APP_NAME
+ARG APP_ENV
+ARG BUILD_ARG
+ARG GITHUB_MVN_TOKEN
+ARG TAG
+ENV GITHUB_MVN_TOKEN=${GITHUB_MVN_TOKEN}
+ENV TAG=${TAG}
+
+
+ADD . /app
+WORKDIR /app
+COPY ./settings.xml /usr/share/maven/conf/settings.xml
+
+ENV TZ=Asia/Kolkata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN ./deploy/build_k8s.sh ./${APP_NAME}-deploy ${APP_ENV} ${BUILD_ARG}

@@ -1,0 +1,25 @@
+ARG FROM
+FROM $FROM as build
+
+FROM public.ecr.aws/amazoncorretto/amazoncorretto:21.0.2-al2
+
+ARG APP_NAME
+ARG APP_ENV
+ARG APP_VERSION
+ARG ENVIRONMENT
+
+ENV destination=/app
+WORKDIR ${destination}
+
+ENV ENVIRONMENT=${ENVIRONMENT}
+ENV APP_ENV=${APP_ENV}
+ENV APP_VERSION=${APP_VERSION}
+RUN yum install -y util-linux tar
+
+
+RUN mkdir -p /logs/${APP_NAME}
+
+COPY --from=build /app/${APP_NAME}-deploy/ ${destination}
+RUN chmod +x entrypoint.sh
+
+CMD ["./entrypoint.sh"]
